@@ -1,0 +1,24 @@
+# Rust build output
+target/
+**/target/
+
+# The local toolchain lives inside the project only because C: was nearly full.
+# It is ~2 GB of rustup, cargo and mingw-w64 and must never be committed.
+.toolchain/
+
+# Built binaries. The distribution notes next to them are tracked, the exe is not.
+dist/*.exe
+dist/audiotune
+*.exe
+
+# Measurement output and scratch files
+*.atune
+*.wav
+*.frd
+
+# Editor and OS noise
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+desktop.ini

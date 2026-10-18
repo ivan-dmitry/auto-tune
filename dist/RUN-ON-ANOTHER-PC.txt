@@ -1,0 +1,60 @@
+AudioTune - running it on another computer
+==========================================
+
+WINDOWS (64-bit)
+
+Copy audiotune.exe anywhere and double-click it. That is the whole install.
+
+The executable is self-contained: it links only against DLLs that ship with
+Windows (kernel32, user32, gdi32, ole32, opengl32, and so on). There is no
+runtime to install, no Visual C++ redistributable, no Rust, no MinGW.
+
+Requirements on the target machine:
+  - 64-bit Windows 10 or 11
+  - Working audio drivers (WASAPI, which is every normal Windows machine)
+  - OpenGL 3.3, which any graphics driver from the last decade provides
+
+Before opening the audio streams, allow microphone access:
+  Settings > Privacy & security > Microphone > let desktop apps access
+
+And turn off every microphone effect, or the measurements are worthless:
+  Sound settings > (your mic) > Properties > Advanced / Enhancements
+  Disable noise suppression, echo cancellation, AGC and "microphone boost".
+
+If the window does not appear, run it from a command prompt to see why:
+
+    audiotune.exe --list-devices     lists every audio device it can see
+    audiotune.exe --selftest         opens the real streams and records 1.5 s
+                                     of room noise (it plays nothing)
+
+If it reports an OpenGL problem, the machine has no usable graphics driver.
+Install the vendor driver, or drop a software-rendering opengl32.dll (Mesa
+llvmpipe for Windows) next to the exe.
+
+Over Remote Desktop, OpenGL is often unavailable. Use the machine directly, or
+use the two command-line modes above.
+
+
+LINUX (64-bit)
+
+There is no prebuilt binary here; build it on the target machine:
+
+    sudo apt install build-essential pkg-config libasound2-dev \
+                     libgl1-mesa-dev libxkbcommon-dev
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    cargo build --release
+
+The binary lands in target/release/audiotune. cpal uses ALSA, and picks up JACK
+automatically if it is running. File dialogs go through the XDG desktop portal,
+which every normal desktop has.
+
+Add yourself to the audio group for lower-latency access:
+
+    sudo usermod -aG audio $USER      (log out and back in)
+
+
+MOVING YOUR WORK BETWEEN MACHINES
+
+Everything is in the project file saved from the top bar: measurements, impulse
+responses, target curve, filters, microphone calibration and the EQ unit
+description. Copy the .atune file across and open it on the other machine.
